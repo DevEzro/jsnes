@@ -1,18 +1,44 @@
-name: CI
+name: Various tests w/SonarQube too
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - master
 
 jobs:
-  build:
-
-    runs-on: ubuntu-latest
+  various_integrated_tests:
+    runs-on: ubuntu-latest # Virtualiza en Ubuntu
 
     steps:
-      - uses: actions/checkout@v2
-      - name: Use Node.js
-        uses: actions/setup-node@v2
+      - name: Clone repo # Clona el repositorio
+        uses: actions/checkout@v2
+
+      - name: Setting JDK 17... # Instala y configura Java
+        uses: actions/setup-java@v2
         with:
-          node-version: '12.x'
-      - run: yarn
-      - run: yarn build
-      - run: yarn test
+          java-version: '17' 
+          distribution: 'zulu'
+
+      - name: Install Sonar Scanner
+        run: |
+          wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
+          unzip sonar-scanner-cli-5.0.1.3006-linux.zip
+          mv sonar-scanner-5.0.1.3006-linux sonar-scanner
+          echo "$(pwd)/sonar-scanner/bin" >> $GITHUB_PATH
+
+      - name: Verify SonarQube...
+        run: |
+          curl -I http://rnkyy-77-211-5-134.a.free.pinggy.link || true
+
+      - name: Run SonarQube scan
+        env:
+          SONAR_TOKEN: ${{ secrets.FORK_TOKEN }} # Token for main branch
+        run: |
+          sonar-scanner \
+            -Dsonar.projectKey=VariosTests \
+            -Dsonar.host.url=http://rnkyy-77-211-5-134.a.free.pinggy.link \
+            -Dsonar.token=${{ secrets.FORK_TOKEN }} \
+            -Dsonar.sources=python,src \
+            -Dsonar.python.version=3.x \
+            -Dsonar.qualitygate.wait=true \
+            -X
