@@ -38,7 +38,7 @@ jobs:
             -Dsonar.projectKey=VariosTests \
             -Dsonar.host.url=http://rnkyy-77-211-5-134.a.free.pinggy.link \
             -Dsonar.token=${{ secrets.FORK_TOKEN }} \
-            -Dsonar.sources=python,src \
+            -Dsonar.sources=src \
             -Dsonar.python.version=3.x \
             -Dsonar.qualitygate.wait=true \
             -X
